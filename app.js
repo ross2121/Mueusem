@@ -50,7 +50,7 @@ app.post('/webhook', async (req, res) => {
             };
 
             return res.json({
-                fulfillmentText: `Your Stripe session has been created. You can complete your payment [here](${session.url}).`
+                fulfillmentText: `Your Stripe session has been created. You can complete your payment <a href="${session.url}" target="_blank">here</a>).`
             });
         } catch (error) {
             console.error('Error creating Stripe session: ', error);
