@@ -50,20 +50,10 @@ app.post('/webhook', async (req, res) => {
             };
 
             return res.json({
-                "fulfillmentMessages": [
-    {
-      "card": {
-        "title": "Payment Link",
-        "subtitle": "Click the button below to complete your payment.",
-        "buttons": [
-          {
-            "text": "Complete Payment",
-            "postback": `${session.url}`
-          }
-        ]
-      }
-    }
-  ]
+                
+                    "fulfillmentText": `Your Stripe session has been created. You can complete your payment here: ${session.url}`
+                  
+                  
             });
             
         } catch (error) {
