@@ -2,6 +2,8 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import Stripe from 'stripe';
 import axios from 'axios'; 
+import booking from './model/booking';
+import booking from './model/booking';
 
 const stripe = Stripe('sk_test_51PngCWDnV1J5iPkhjADPh6ywXKK9PwrAq412HaqxXiALc3DP2BkvvWHchIjl2BsmKFIaJukq3zOFNojVCA3vxbvR003fr1OQRo');
 
@@ -79,19 +81,17 @@ app.post('/stripe-webhook', express.raw({ type: 'application/json' }), async (re
 console.log(session);
 
         const bookingInfo = ticketBookingData[session.id];
+        
         console.log(bookingInfo);
-
+        
         if (bookingInfo) {
             console.log(`Payment confirmed for seat ${bookingInfo.seat} at ${bookingInfo.cinema} for ${bookingInfo.time}`);
             
-    
-            await axios.post('https://mueusem.onrender.com/webhook', {
-                fulfillmentText: 'Your ticket is confirmed! Enjoy your tour!',
-                // sessionId: session.id,
-               
+            return res.json({
+                fulfillmentText: `Your ticket for seat ${bookingInfo.seat} at ${bookingInfo.cinema} for ${bookingInfo.time} is confirmed! Enjoy your show!`,
             });
 
-            res.json({ received: true });
+           
         }
 
         delete ticketBookingData[session.id];

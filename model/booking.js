@@ -1,8 +1,13 @@
 import mongoose from "mongoose"
 const bookedticket=new mongoose.Schema({
-    seatno:{
-       type:Number,
-       default:0,
+    userid:{
+        type:String
+    },
+    adult:{
+        type:Number,
+    },
+    child:{
+        type:Number,
     }
 })
 export default mongoose.model("booked",bookedticket);
