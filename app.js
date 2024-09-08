@@ -85,7 +85,7 @@ console.log(session);
             console.log(`Payment confirmed for seat ${bookingInfo.seat} at ${bookingInfo.cinema} for ${bookingInfo.time}`);
             
     
-            await axios.post('https://weekly-picked-clam.ngrok-free.app/webhook', {
+            await axios.post('https://mueusem.onrender.com/webhook', {
                 fulfillmentText: 'Your ticket is confirmed! Enjoy your tour!',
                 // sessionId: session.id,
                
