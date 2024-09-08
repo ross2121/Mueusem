@@ -68,7 +68,7 @@ app.post('/stripe-webhook', express.raw({ type: 'application/json' }), async (re
     let event;
 
     try {
-        event = stripe.webhooks.constructEvent(req.rawbody, sig, 'whsec_bb0e58d8aba17c09e1f619b27ca777d5a8894f3f482615ab7f720376798ef422'); 
+        event = stripe.webhooks.constructEvent(req.rawbody, sig,'whsec_t2aJVTqrjk8mrU2AUe3v8ozOFbv4fyH8'); 
     } catch (err) {
         console.error('Webhook error:', err.message);
         return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -86,8 +86,8 @@ console.log(session);
             
     
             await axios.post('https://weekly-picked-clam.ngrok-free.app/webhook', {
-                fulfillmentText: 'Your ticket is confirmed! Enjoy your movie!',
-                sessionId: session.id,
+                fulfillmentText: 'Your ticket is confirmed! Enjoy your tour!',
+                // sessionId: session.id,
                
             });
 
