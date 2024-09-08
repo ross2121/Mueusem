@@ -19,6 +19,7 @@
     "express": "^4.19.2",
     "mongo": "^0.1.0",
     "moongose": "^1.0.0",
+    "node-fetch": "^3.3.2",
     "parser": "^0.1.4",
     "stripe": "^16.9.0"
   }

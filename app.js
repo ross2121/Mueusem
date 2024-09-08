@@ -1,8 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import Stripe from 'stripe';
-// import axios from 'axios'; 
-
+import fetch from 'node-fetch'; 
 
 const stripe = Stripe('sk_test_51PngCWDnV1J5iPkhjADPh6ywXKK9PwrAq412HaqxXiALc3DP2BkvvWHchIjl2BsmKFIaJukq3zOFNojVCA3vxbvR003fr1OQRo');
 
@@ -24,8 +23,7 @@ app.post('/webhook', async (req, res) => {
     if (intent === 'Checkout') {
         const { adultnumber, childnumber } = req.body.queryResult.parameters;
         const totalamount = adultnumber * 200 + childnumber * 50;
-       console.log(childnumber);
-       console.log(adultnumber);
+
         try {
             const session = await stripe.checkout.sessions.create({
                 payment_method_types: ['card'],
@@ -39,15 +37,19 @@ app.post('/webhook', async (req, res) => {
                     },
                     quantity: 1,
                 }],
-                mode: 'payment', 
-                success_url: `https://your-domain.com/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+                mode: 'payment',
+                success_url: `https://museum-lilac.vercel.app/sucess`,
                 cancel_url: `https://your-domain.com/payment-cancel`,
             });
 
-            ticketBookingData[session.id] = { seat: 'A1', time: '7:00 PM', cinema: 'Cinema 1' }; 
-            // console.log('Stripe session created:', session.url);
+            ticketBookingData[session.id] = {
+                seat: 'A1',
+                time: '7:00 PM',
+                cinema: 'Cinema 1'
+            };
+
             return res.json({
-                 fulfillmentText: `Your Stripe session has been created. You can complete your payment ${session.url}`
+                fulfillmentText: `Your Stripe session has been created. You can complete your payment [here](${session.url}).`
             });
         } catch (error) {
             console.error('Error creating Stripe session: ', error);
@@ -56,11 +58,9 @@ app.post('/webhook', async (req, res) => {
             });
         }
     } else {
-        // console.log(error);
         return res.json({
             fulfillmentText: 'Sorry, I did not understand your request.',
         });
-      
     }
 });
 
@@ -69,7 +69,7 @@ app.post('/stripe-webhook', express.raw({ type: 'application/json' }), async (re
     let event;
 
     try {
-        event = stripe.webhooks.constructEvent(req.rawbody, sig, 'whsec_t2aJVTqrjk8mrU2AUe3v8ozOFbv4fyH8'); 
+        event = stripe.webhooks.constructEvent(req.rawbody, sig, 'whsec_t2aJVTqrjk8mrU2AUe3v8ozOFbv4fyH8');
     } catch (err) {
         console.error('Webhook error:', err.message);
         return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -78,11 +78,9 @@ app.post('/stripe-webhook', express.raw({ type: 'application/json' }), async (re
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
         const bookingInfo = ticketBookingData[session.id];
-        
+
         if (bookingInfo) {
             console.log(`Payment confirmed for seat ${bookingInfo.seat} at ${bookingInfo.cinema} for ${bookingInfo.time}`);
-            
-            // Send confirmation message back to Dialogflow
             await sendConfirmationToDialogflow(bookingInfo, session.id);
             delete ticketBookingData[session.id];
         }
@@ -100,13 +98,12 @@ async function sendConfirmationToDialogflow(bookingInfo, sessionId) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            session: sessionId, // Use the session ID to identify the user
+            session: sessionId,
             fulfillmentText: message,
         }),
     });
     console.log(bookingInfo);
 }
-
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
