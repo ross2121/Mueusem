@@ -69,7 +69,7 @@ app.post('/stripe-webhook', express.raw({ type: 'application/json' }), async (re
     let event;
 
     try {
-        event = stripe.webhooks.constructEvent(req.rawbody, sig,'whsec_t2aJVTqrjk8mrU2AUe3v8ozOFbv4fyH8'); 
+        event = stripe.webhooks.constructEvent(req.rawbody, sig, 'whsec_t2aJVTqrjk8mrU2AUe3v8ozOFbv4fyH8'); 
     } catch (err) {
         console.error('Webhook error:', err.message);
         return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -77,27 +77,36 @@ app.post('/stripe-webhook', express.raw({ type: 'application/json' }), async (re
 
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
-console.log(session);
-
         const bookingInfo = ticketBookingData[session.id];
-        
-        console.log(bookingInfo);
         
         if (bookingInfo) {
             console.log(`Payment confirmed for seat ${bookingInfo.seat} at ${bookingInfo.cinema} for ${bookingInfo.time}`);
             
-            return res.json({
-                fulfillmentText: `Your ticket for seat ${bookingInfo.seat} at ${bookingInfo.cinema} for ${bookingInfo.time} is confirmed! Enjoy your show!`,
-            });
-
-           
+            // Send confirmation message back to Dialogflow
+            await sendConfirmationToDialogflow(bookingInfo, session.id);
+            delete ticketBookingData[session.id];
         }
-
-        delete ticketBookingData[session.id];
     }
 
     res.status(200).end();
 });
+
+async function sendConfirmationToDialogflow(bookingInfo, sessionId) {
+    const message = `Your ticket for seat ${bookingInfo.seat} at ${bookingInfo.cinema} for ${bookingInfo.time} is confirmed! Enjoy your show!`;
+
+    await fetch('https://mueusem.onrender.com/webhook', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            session: sessionId, // Use the session ID to identify the user
+            fulfillmentText: message,
+        }),
+    });
+    console.log(bookingInfo);
+}
+
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
