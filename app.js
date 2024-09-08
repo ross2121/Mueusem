@@ -1,9 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import Stripe from 'stripe';
-import axios from 'axios'; 
-import booking from './model/booking';
-import booking from './model/booking';
+// import axios from 'axios'; 
+
 
 const stripe = Stripe('sk_test_51PngCWDnV1J5iPkhjADPh6ywXKK9PwrAq412HaqxXiALc3DP2BkvvWHchIjl2BsmKFIaJukq3zOFNojVCA3vxbvR003fr1OQRo');
 
@@ -40,7 +39,7 @@ app.post('/webhook', async (req, res) => {
                     },
                     quantity: 1,
                 }],
-                mode: 'payment',
+                mode: 'payment', 
                 success_url: `https://your-domain.com/payment-success?session_id={CHECKOUT_SESSION_ID}`,
                 cancel_url: `https://your-domain.com/payment-cancel`,
             });
